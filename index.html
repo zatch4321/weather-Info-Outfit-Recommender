@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content=""width=device-width, initial-scale="1.0">
+        <title>Weather Outfit Recommendation App</title>
+        <link rel="stylesheet" href= "style.css">
+    </head>
+    <body>
+
+        <div class="card">
+            <div class="search">
+                <input type="text" placeholder="enter city name" 
+                spellcheck="false">
+                <button><img src="images/search.png"></button>
+            </div>
+            <div class="error">
+                <p>Invalid City Name</p>
+            </div>
+            <div class="weather">
+                <img src="images/rain.png" class="weather-icon">
+                <h1 class="temp">12°C</h1>
+                <h2 class="city">Waterloo</h2>
+                <div class="details">
+                    <div class="col">
+                        <img src="images/humidity.png">
+                        <div>
+                            <p class="humidity">50%</p>
+                            <p>Humidity</p>
+                        </div>           
+                    </div>
+                    <div class="col">
+                        <img src="images/wind.png">
+                        <div>
+                            <p class="wind">15km/h</p>
+                            <p>Wind Speed</p>
+                        </div>           
+                    </div>
+                </div>
+                <p class="outfit-recommendation"></p>
+            </div>
+        </div>
+
+<script>
+
+    const apiKey = "cb18fb31c93b21dd3bce12467170e51c";
+    const apiUrl = "https://api.openweathermap.org/data/2.5/weather?&units=metric&q=";
+
+    const searchBox = document.querySelector(".search input");
+    const searchButton = document.querySelector(".search button");
+    const weatherIcon = document.querySelector(".weather-icon");
+
+    function getOutfitRecommendation(weatherCondition, temperature, humidity) {
+  let outfitRecommendation = "Recommended outfit: ";
+
+  if (weatherCondition === "Clear") {
+    if (temperature >= 30) {
+      outfitRecommendation += "Light and breathable clothing such as T-shirts, shorts, and sandals. Don't forget a sun hat and sunglasses!";
+    } else if (temperature >= 20) {
+      outfitRecommendation += "Short sleeves or tank tops, shorts or skirts, and comfortable shoes. Consider wearing a hat and sunglasses.";
+    } else if (temperature >= 10) {
+      outfitRecommendation += "Long sleeves or light sweaters, pants or jeans, and closed-toe shoes. You may want to bring a light jacket or cardigan.";
+    } else {
+      outfitRecommendation += "Long sleeves or sweaters, pants or jeans, and closed-toe shoes. Layer up with a jacket or coat.";
+    }
+  } else if (weatherCondition === "Rain") {
+    outfitRecommendation += "Waterproof or water-resistant jacket or coat, pants or jeans, and rain boots. Carry an umbrella for added protection.";
+  } else if (weatherCondition === "Snow") {
+    outfitRecommendation += "Warm coat or jacket, thermal or wool sweater, pants or jeans, insulated boots, gloves, hat, and scarf.";
+  } else if (weatherCondition === "Clouds") {
+    outfitRecommendation += "Light layers such as a T-shirt, light sweater or hoodie, pants or jeans, and comfortable shoes.";
+  } else if (weatherCondition === "Drizzle") {
+    outfitRecommendation += "Water-resistant jacket or coat, pants or jeans, and waterproof shoes.";
+  } else if (weatherCondition === "Mist") {
+    outfitRecommendation += "Light layers, such as a T-shirt, light jacket or hoodie, pants or jeans, and comfortable shoes.";
+  } else {
+    outfitRecommendation += "Comfortable clothing suitable for the weather conditions.";
+  }
+
+  // Additional outfit recommendations based on humidity
+  if (humidity >= 70) {
+    outfitRecommendation += " Consider wearing breathable fabrics and avoiding heavy layers.";
+  } else if (humidity >= 50) {
+    outfitRecommendation += " You may want to choose moisture-wicking clothing to stay comfortable.";
+  }
+
+  return outfitRecommendation;
+}
+
+   
+    
+
+    async function checkWeather(city){
+        const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+
+        if(response.status == 404){
+            document.querySelector(".error").style.display = "block";
+            document.querySelector(".weather").style.display = "none";
+        } else {
+
+        var data = await response.json();
+
+
+        document.querySelector(".city").innerHTML = data.name;
+        document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+        document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+        document.querySelector(".wind").innerHTML = data.wind.speed + "km/h";
+
+    if (data.weather[0].main == "Clouds") {
+      weatherIcon.src = "images/clouds.png";
+      outfit = getOutfitRecommendation(data.weather[0].main, data.main.temp, data.main.humidity);
+    } else if (data.weather[0].main == "Clear") {
+      weatherIcon.src = "images/clear.png";
+      outfit = getOutfitRecommendation(data.weather[0].main, data.main.temp, data.main.humidity);
+    } else if (data.weather[0].main == "Rain") {
+      weatherIcon.src = "images/rain.png";
+      outfit = getOutfitRecommendation(data.weather[0].main, data.main.temp, data.main.humidity);
+    } else if (data.weather[0].main == "Drizzle") {
+      weatherIcon.src = "images/drizzle.png";
+      outfit = getOutfitRecommendation(data.weather[0].main, data.main.temp, data.main.humidity);
+    } else if (data.weather[0].main == "Snow") {
+      weatherIcon.src = "images/snow.png";
+      outfit = getOutfitRecommendation(data.weather[0].main, data.main.temp, data.main.humidity);
+    } else if (data.weather[0].main == "Mist") {
+      weatherIcon.src = "images/mist.png";
+      outfit = getOutfitRecommendation(data.weather[0].main, data.main.temp, data.main.humidity);
+    }
+       
+
+        document.querySelector(".weather").style.display = "block";
+        document.querySelector(".error").style.display = "none";
+        document.querySelector(".outfit-recommendation").innerHTML = outfit;
+
+    }
+}
+
+    searchButton. addEventListener("click", ()=> {
+        checkWeather(searchBox.value);
+    })
+    
+checkWeather();
+
+
+</script>
+
+
+
+    </body>
+    </html>
